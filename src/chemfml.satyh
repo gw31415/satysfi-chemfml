@@ -85,15 +85,16 @@ end = struct
                         | None -> molecule str
                     in
                 match splitten with
-                    | split :: [] -> (
-                            let (_, str) = split in
-                            converter str
-                        )
                     | split :: splitten-next ->
                         (
                             let (_, str) = split in
                             converter str
                         ) ++ (inline-skip length-between-molecules) ++ (builder splitten-next)
+                    | split :: [] -> (
+                            let (_, str) = split in
+                            converter str
+                        )
+                    | [] -> inline-skip 0mm
             in
             let splitten = split-on-regexp (regexp-of-string `\ `#) exp in
             builder splitten
