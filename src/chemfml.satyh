@@ -1,35 +1,102 @@
-% .satyh files are loaded by the PDF backend.
-% .satyh-markdown and .saty-html files are loaded by the text backend for markdoown and html outputs, respectively.
-% A .satyg file is loaded when the corresponding .satyh or .satyh-* files are not loaded.
-% See https://qiita.com/puripuri2100/items/ca0b054d38480f1bda61 for more details about the load order.
-
-% load standard list package
-@require: list
-
-% load float package from base library
-@require: base/float
-
 module Chemfml : sig
-  % Type declaration of module Chemfml
-
-  val pi : float
-
-  val geo-mean : float list -> float
-
+    direct \chem : [string;] inline-cmd
 end = struct
-  % Actual definitions
+    let-inline ctx \chem exp =
 
-  let pi = 3.1415926535897932384626433832795
+        % フォントサイズに関する定数
+        let size = get-font-size ctx in
+        let length-between-molecules = size *' 0.5 in
+        let ratio = .75 in % 添え字の倍率
+        let baselineshift = 0.1 in % 上下の移動
 
-  % function definition that is not exposed
-  let sum xs =
-    xs
-    |> List.fold-left (+.) 0.
+        % string -> inline-text の関数
+        let embed-normal c = read-inline ctx (embed-string c) in
+        let embed-sub c = read-inline (
+            ctx
+            |> set-font-size (size *' ratio)
+            |> set-manual-rising (0pt -' (size *' baselineshift))
+        ) (embed-string c) in
+        let embed-upper c = read-inline (
+            ctx
+            |> set-font-size (size *' ratio)
+            |> set-manual-rising (size *' (1. -. ratio +. baselineshift))
+        ) (embed-string c) in
 
-  let geo-mean xs =
-    xs
-    |> List.map Float.log
-    |> sum
-    |> Float.exp
+        % シンボルの変換
+        let symbols str =
+            if string-same str `+` then Some(embed-normal `+`)
+            else if string-same str `->` then Some(embed-normal `→`)
+            else if string-same str `<-` then Some(embed-normal `←`)
+            %else if string-same str `<=>` then Some(embed-normal `⟷`)
+            else None
+            in
 
+        % 分子用の変換関数
+        let molecule str =
+            % 文字種判別関数
+            let char-ion-auto char = string-same `+` char || (string-same `-` char) in
+            let char-ion-manual char = string-same `^` char in
+            let char-int char = (string-match ( regexp-of-string `[0-9]` ) char) in
+            let char-atom char = not (char-int char || char-ion-auto char || char-ion-manual char) in
+
+            % モード定義
+            let mode-coeff = 0 in
+            let mode-atom = 1 in
+            let mode-ion = 2 in
+
+            let last-index = string-length str - 1 in
+            let-rec builder origin i mode =
+                % 対象にしている文字
+                let char = string-sub origin i 1 in
+
+                % モード切り替えのフェーズ
+                %    普通の文字は原子モード
+                if not (mode == mode-atom) && (char-atom char) then
+                    builder origin i mode-atom
+                %    ハット又は+-でイオン価数モード
+                else if char-ion-manual char then
+                    builder origin (i + 1) mode-ion
+                else if not (mode == mode-ion) && (char-ion-auto char) then
+                    builder origin i mode-ion
+                else
+
+                % charをインラインテキストに変換するフェーズ
+                let next-inline = (
+                    if mode == mode-ion then embed-upper
+                        else if mode == mode-atom then (if char-int char then embed-sub else embed-normal)
+                        else embed-normal
+                    ) char in
+
+                % 再帰処理のフェーズ
+                if i < last-index then
+                    next-inline ++ (builder origin (i + 1) mode)
+                else
+                    next-inline
+                in
+
+            builder str 0 0
+            in
+
+        let result =
+            let-rec builder splitten =
+                let converter str =
+                    match (symbols str) with
+                        | Some(symbol) -> symbol
+                        | None -> molecule str
+                    in
+                match splitten with
+                    | split :: [] -> (
+                            let (_, str) = split in
+                            converter str
+                        )
+                    | split :: splitten-next ->
+                        (
+                            let (_, str) = split in
+                            converter str
+                        ) ++ (inline-skip length-between-molecules) ++ (builder splitten-next)
+            in
+            let splitten = split-on-regexp (regexp-of-string `\ `#) exp in
+            builder splitten
+            in
+        script-guard Latin result
 end
