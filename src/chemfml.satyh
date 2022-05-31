@@ -25,6 +25,7 @@ end = struct
         % シンボルの変換
         let symbols str =
             if string-same str `+` then Some(embed-normal `+`)
+            else if string-same str `-` then Some(embed-normal `-`)
             else if string-same str `->` then Some(embed-normal `→`)
             else if string-same str `<-` then Some(embed-normal `←`)
             %else if string-same str `<=>` then Some(embed-normal `⟷`)
