@@ -29,10 +29,10 @@
   ;; Build commands
   (build
     ;; Run SATySFi
-    ((satysfi "manual.saty" "-o" "manual.pdf")))
+    ((satysfi "chemfml.saty" "-o" "chemfml.pdf")))
   ;; Files
   (sources
-    ((doc "manual.pdf" "doc/manual.pdf")))
+    ((doc "chemfml.pdf" "doc/chemfml.pdf")))
   ;; OPAM package file
   (opam "satysfi-chemfml-doc.opam")
   ;; Dependency
