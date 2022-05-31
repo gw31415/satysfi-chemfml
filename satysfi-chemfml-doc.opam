@@ -1,6 +1,6 @@
 opam-version: "2.0"
 name: "satysfi-chemfml-doc"
-version: "1.0.0"
+version: "1.0.1"
 synopsis: "Document of a SATySFi Package for chemical formulas"
 description: """
 The package `chemfml` is a SATySFi package for drawing chemical reaction formulas.
