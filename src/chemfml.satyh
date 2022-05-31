@@ -5,7 +5,7 @@ end = struct
 
         % フォントサイズに関する定数
         let size = get-font-size ctx in
-        let length-between-molecules = size *' 0.5 in
+        let separator = inline-glue (size *' .5) (size *' .25) 0pt in
         let ratio = .75 in % 添え字の倍率
         let baselineshift = 0.1 in % 上下の移動
 
@@ -86,16 +86,16 @@ end = struct
                         | None -> molecule str
                     in
                 match splitten with
-                    | split :: splitten-next ->
-                        (
-                            let (_, str) = split in
-                            converter str
-                        ) ++ (inline-skip length-between-molecules) ++ (builder splitten-next)
+                    | [] -> inline-skip 0mm
                     | split :: [] -> (
                             let (_, str) = split in
                             converter str
                         )
-                    | [] -> inline-skip 0mm
+                    | split :: splitten-next ->
+                        (
+                            let (_, str) = split in
+                            converter str
+                        ) ++ separator ++ (builder splitten-next)
             in
             let splitten = split-on-regexp (regexp-of-string `\ `#) exp in
             builder splitten
