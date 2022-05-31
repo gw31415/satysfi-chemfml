@@ -22,6 +22,7 @@ depends: [
   # Other libraries
   "satysfi-dist"
   "satysfi-base"
+  "satysfi-easytable"
 ]
 build: [
   ["satyrographos" "opam" "build"

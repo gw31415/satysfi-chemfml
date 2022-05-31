@@ -40,4 +40,5 @@
     ((chemfml ()) ; the main library
      (dist ()) ; Standard library
      (base ()) ; Base library
+     (easytable ()) ; Easytable library
     )))

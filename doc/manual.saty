@@ -1,33 +1,92 @@
-@require: stdjareport
+@require: stdjabook
 @require: itemize
 @require: annot
+@require: code
+@require: easytable/easytable
 
 @require: base/typeset/base
 @require: base/float
 
-@require: chemfml/chemfml
+@import: ../src/chemfml
 
-% Document-local function definition
-let-inline \show-float f =
-  f
-  |> Float.to-string
-  |> embed-string
+open EasyTableAlias
+
+let-block +operators lst =
+    let-rec builder rest =
+        match rest with
+        | [] -> []
+        | s :: strs -> {\code(s);} :: ( {\chem(s);} :: ( builder strs ))
+        in
+    '<
+        +easytable[c;c](
+            {文字列} :: ({演算子} :: (builder lst))
+        );
+    >
+
 in
 
 document (|
-  title = {chemfml Manual};
-  author = {Your Name};
+    title = {chemfml パッケージ};
+    author = {\@Amadeus_vn};
+    show-toc = true;
+    show-title = true;
 |) '<
-  +p {
-    See `https://qiita.com/na4zagin3/items/b392f5d522f9bcc0493b` for the instruction in Japanese.
-  }
-  +chapter{Examples} <
-    +p {
-      ${\pi = \mathrm-token!(Float.to-string Chemfml.pi)}.
-    }
-    +p {
-      Geometric mean of 1, 3, and 5 is
-      \show-float(Chemfml.geo-mean [1.; 3.; 5.]);
-    }
-  >
+    +section{概要} <
+        +p {
+            chemfmlは\SATySFi;の組版で化学式や化学反応式を組みやすくするためのパッケージです。
+            \LaTeX;における\code(`mhchem`);のような感覚で化学式を組むことができます。
+        }
+    >
+    +section{Example}<
+        +code(```
+            +p{
+                \chem(`MnO4- + 8H+ + 5e- -> Mn^2+ + 4H2O`);
+            }```);
+        +p{
+            \chem(`MnO4- + 8H+ + 5e- -> Mn^2+ + 4H2O`);
+        }
+    >
+    +section{使い方}<
+        +subsection{式の構成}<
+            +code(``
+                \chem(`MnO4- + 8H+ + 5e- -> Mn^2+ + 4H2O`);
+            ``);
+            +p{
+                それぞれの化学式や演算子(\code(`+`);や\code(`->`);など)
+                は半角スペースで区切ります。
+                chemfmlでは半角スペースで区切られたそれぞれの化学式または演算子の
+                ことをmoleculeと呼んでいます。
+            }
+        >
+        +subsection{演算子}<
+            +p{
+                moleculeの文字列が予約されたものの場合は演算子として処理されます。
+                登録されている文字列と演算子の対応表は以下の通りです。
+            }
+            +operators[`+`;`-`;`->`;`<-`];
+        >
+        +subsection{化学式}<
+            +code(```
+                \chem(`MnO4-`), \chem(`Mn^2+`)
+            ```);
+            +p{
+                moleculeが演算子でない場合は化学式として処理されます。
+                係数以外の数字は基本的に下付きの添字となりますが、\code(`^`);を用いることで
+                それ以降数字や符号が続く限り上付きの表示になります。
+                \code(`+`);や\code(`-`);が表われると自動的に以降が上付きになります。
+            }
+        >
+    >
+    %+section{処理される仕組み}<
+    %>
+    +section{Future work}<
+        +listing{
+            * 演算子の種類を追加する。
+            * フォントについて検討する。
+            * 質量数や原子番号に対応する。
+            * 沈殿やガスの矢印に対応する。
+            * 注釈や文字式のため\code(`inline-text`);を受けつけられるようにしたい。
+            * 矢印の上下に注釈を追加できるようにしたい。
+        }
+    >
 >
