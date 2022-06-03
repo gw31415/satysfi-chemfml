@@ -1,6 +1,6 @@
 opam-version: "2.0"
 name: "satysfi-chemfml-doc"
-version: "1.0.1"
+version: "1.0.2"
 synopsis: "Document of a SATySFi Package for chemical formulas"
 description: """
 The package `chemfml` is a SATySFi package for drawing chemical reaction formulas.
@@ -13,7 +13,7 @@ homepage: "https://github.com/gw31415/satysfi-chemfml"
 dev-repo: "git+https://github.com/gw31415/satysfi-chemfml.git"
 bug-reports: "https://github.com/gw31415/satysfi-chemfml/issues"
 depends: [
-  "satysfi" { >= "0.0.6" & < "0.0.7" }
+  "satysfi" { >= "0.0.6" & < "0.0.8" }
   "satyrographos" { >= "0.0.2.6" & < "0.0.3" }
 
   # You may want to include the corresponding library
